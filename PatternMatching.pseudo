@@ -1,0 +1,77 @@
+CLASS: PatternMatching
+FIELDS:
+    lessonId : String
+    title : String
+    difficultyLevel : String
+    pattern : ARRAY OF String
+END CLASS
+
+
+SUBMODULE: PatternMatchingLesson (Constructor)
+IMPORT: lessonId (String), title (String), difficultyLevel (String), pattern (ARRAY OF String)
+EXPORT: lessonObject (PatternMatching)
+ALGORITHM:
+    CREATE lessonObject AS PatternMatching
+    
+    lessonObject.lessonId := lessonId
+    lessonObject.title := title
+    lessonObject.difficultyLevel := difficultyLevel
+    lessonObject.pattern := pattern
+    
+    RETURN lessonObject
+END SUBMODULE
+
+
+SUBMODULE: evaluatePatternAnswer
+IMPORT: lesson (PatternMatching), userAnswer (String)
+EXPORT: isCorrect (Boolean)
+ALGORITHM:
+    // Read correct answer from lesson file: 
+    lessonFileName := lesson.lessonId + "_pattern.txt"
+    // Error handling same as file manager checks
+    IF (file lessonFileName does not exist) THEN
+        OUTPUT "Pattern file not found: " + lessonFileName
+        RETURN false
+    END IF
+    
+    OPEN lessonFileName FOR READING
+    READ correctPattern FROM lessonFileName
+    CLOSE lessonFileName
+    
+    IF (userAnswer EQUALS correctPattern) THEN
+        isCorrect := true
+    ELSE
+        isCorrect := false
+    END IF
+    
+    RETURN isCorrect
+END SUBMODULE
+
+
+SUBMODULE: getHint
+IMPORT: lesson (PatternMatching)
+EXPORT: hint (String)
+ALGORITHM:
+    // Provide a simple hint based on the first pattern element
+    hint := "The pattern starts with: " + lesson.pattern[0]
+    RETURN hint
+END SUBMODULE
+
+
+SUBMODULE: displayLesson
+IMPORT: lesson (PatternMatching)
+EXPORT: none
+ALGORITHM:
+    OUTPUT "Lesson ID: " + lesson.lessonId
+    OUTPUT "Title: " + lesson.title
+    OUTPUT "Difficulty: " + lesson.difficultyLevel
+    OUTPUT "Pattern Length: " + SIZE OF lesson.pattern
+END SUBMODULE
+
+
+SUBMODULE: getPattern
+IMPORT: lesson (PatternMatching)
+EXPORT: pattern (ARRAY OF String)
+ALGORITHM:
+    RETURN lesson.pattern
+END SUBMODULE
