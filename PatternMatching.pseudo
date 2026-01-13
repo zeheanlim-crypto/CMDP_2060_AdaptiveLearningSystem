@@ -1,5 +1,5 @@
 CLASS: PatternMatching
-FIELDS:
+PRIVATE FIELDS:
     lessonId : String
     title : String
     difficultyLevel : String

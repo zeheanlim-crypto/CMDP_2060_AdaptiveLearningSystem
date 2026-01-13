@@ -21,7 +21,7 @@ ALGORITHM:
         RETURN
     END IF
     
-    OPEN studentFileName FOR WRITING
+    OPEN studentFile ame FOR WRITING
     WRITE studentDetails TO studentFileName
     WRITE progressRecords TO studentFileName
     CLOSE studentFileName
