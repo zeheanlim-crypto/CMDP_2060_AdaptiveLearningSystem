@@ -1,0 +1,90 @@
+abstract CLASS Lesson
+
+CLASS Fields:
+    lessonId(Integer),
+    title(String), 
+    difficultyLevel(Integer), 
+    completionstatus(boolean),
+
+    abstract int evaluateAnswer(String userAnswer)
+    abstract String getHint()
+    abstract displayLesson()
+
+
+METHOD: evaluateAnswer (ABSTRACT)
+IMPORT: userAnswer (String)
+EXPORT: score (Integer)
+ASSERTION: Evaluate the user's answer and return a score.
+
+
+METHOD:  displayLesson (ABSTRACT)
+IMPORT: none
+EXPORT: none
+ASSERTION: Display lesson content to the user.
+
+ALGORITHM:
+  
+METHOD:  getHint (ABSTRACT)
+IMPORT: none
+EXPORT: hint (String)
+ASSERTION: Provide a hint to help the user answer the lesson.
+
+ALGORITHM:  
+  RETURN hint 
+END METHOD
+
+END METHOD
+
+
+METHOD: markCompleted()
+IMPORT: mark(Integer)
+EXPORT: completionstatus(boolean)
+ASSERTION: Update lesson completion status based on score.
+
+ALGORITHM:
+ IF score >= 60 THEN
+        SET completionStatus = true
+    ENDIF
+
+    RETURN completionStatus
+
+
+METHOD: getTitle
+IMPORT: none
+EXPORT: title (String)
+ASSERTION: Return the lesson title.
+
+ALGORITHM:
+    RETURN title
+END METHOD
+
+
+METHOD: getDifficultyLevel
+IMPORT: none
+EXPORT: difficultyLevel (Integer)
+ASSERTION: Return the difficulty level of the lesson.
+
+ALGORITHM:
+    RETURN difficultyLevel
+END METHOD
+
+
+METHOD: getLessonId
+IMPORT: none
+EXPORT: lessonId (Integer)
+ASSERTION: Return the lesson ID.
+
+ALGORITHM:
+    RETURN lessonId
+END METHOD 
+
+
+METHOD: isCompleted()
+IMPORT:none
+EXPORT : completedstatus (Boolean)
+
+ALGORITHM:
+    RETURN completedstatus
+END METHOD
+
+END CLASS
