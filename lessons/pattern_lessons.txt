@@ -1,0 +1,4 @@
+# Pattern Matching Lessons
+PM001|Basic Shapes|1|Circle,Square,Circle
+PM002|Shape Sequence|2|Triangle,Circle,Square,Triangle
+PM003|Advanced Pattern|3|Star,Circle,Triangle,Star,Square

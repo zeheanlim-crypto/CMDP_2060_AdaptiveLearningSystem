@@ -1,17 +1,17 @@
 public class PatternMatchingLesson
 {
-    private String lessonId;
+    private String lessonID;
     private String title;
-    private String difficultyLevel;
+    private int difficulty;
     private String[] pattern;
 
 
-    public PatternMatchingLesson ( String lessonId, String title, String difficultyLevel, String[] pattern )
+    public PatternMatchingLesson ( String lessonID, String title, int difficulty, String[] patterns )
     {
-        this.lessonId = lessonId;
+        this.lessonID = lessonID;
         this.title = title;
-        this.difficultyLevel = difficultyLevel;
-        this.pattern = pattern;
+        this.difficulty = difficulty;
+        this.pattern = patterns;
     }
 
 
@@ -34,9 +34,9 @@ public class PatternMatchingLesson
 
     public void displayLesson ()
     {
-        System.out.println ( "Lesson ID: " + lessonId );
+        System.out.println ( "Lesson ID: " + lessonID );
         System.out.println ( "Title: " + title );
-        System.out.println ( "Difficulty: " + difficultyLevel );
+        System.out.println ( "Difficulty: " + difficulty );
         System.out.println ( "Pattern length: " + pattern.length );
     }
 
@@ -47,9 +47,9 @@ public class PatternMatchingLesson
     }
 
 
-    public String getLessonId ()
+    public String getlessonID ()
     {
-        return lessonId;
+        return lessonID;
     }
 
 
@@ -59,8 +59,8 @@ public class PatternMatchingLesson
     }
 
     
-    public String getDifficultyLevel ()
+    public int getdifficulty ()
     {
-        return difficultyLevel;
+        return difficulty;
     }
 }

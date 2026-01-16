@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class FileManager 
 {
@@ -65,58 +67,64 @@ public class FileManager
 
 
     // Load student file and return contents as String
-    public static void loadStudent ( String studentName ) 
+    public static String loadStudent( String studentName ) 
     {
         String filePath = STUDENT_DIR + "STU_" + studentName + ".txt";
+        StringBuilder studentProfile = new StringBuilder();
 
-        try ( BufferedReader reader = new BufferedReader ( new FileReader ( filePath ) ) ) 
+        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) 
         {
             String line;
 
-            while ( ( line = reader.readLine () ) != null ) 
+            while ((line = reader.readLine()) != null) 
             {
-                System.out.println ( line );
+                studentProfile.append(line).append(System.lineSeparator());
             }
 
-        } catch ( IOException e ) 
+            return studentProfile.toString();
+
+        } catch (IOException e) 
         {
-            System.out.println ( "Error loading student profile." );
-            e.printStackTrace ();
+            System.out.println("Error loading student profile.");
+            e.printStackTrace();
+            return "";
         }
     }
 
 
+
     // List out all the students registered
-    public static void listStudents ()
+    public static String[] listStudents ()
     {
-        File studentFolder = new File ( STUDENT_DIR );
-        File[] files = studentFolder.listFiles ();
+        File studentFolder = new File( STUDENT_DIR );
+        File[] files = studentFolder.listFiles();
+        List<String> studentList = new ArrayList<>();
+
+        if (files == null || files.length == 0)
+        {
+            return new String[0];
+        }
+
         int count = 1;
 
-        // If there are no files, just stop
-        if ( files == null || files.length == 0 )
+        for (File file : files)
         {
-            System.out.println ( "No student files." );
-            return;
-        }
-
-        System.out.println ( "List of Students:" );
-
-        // Main loop logic
-        for ( File file : files )
-        {
-            if ( file.isFile () && file.getName ().startsWith ( "STU_" ) )
+            if ( file.isFile() && file.getName().startsWith( "STU_" ) )
             {
-                String fileName = file.getName ();
+                String fileName = file.getName();
 
                 String studentName = fileName
-                        .replace ( "STU_", "" )
-                        .replace ( ".txt", "" );
+                        .replace("STU_", "")
+                        .replace(".txt", "");
 
-                System.out.println ( count + ". " + studentName );
+                System.out.println(count + ". " + studentName);
                 count++;
+
+                studentList.add(studentName);
             }
         }
+
+        return studentList.toArray(new String[0]);
     }
 
 
@@ -165,8 +173,9 @@ public class FileManager
 
 
     // Load pattern_lessons.txt
-    public static void loadPatternLessons ( )
+    public static List<PatternMatchingLesson> loadPatternLessons ()
     {
+        List<PatternMatchingLesson> lessons = new ArrayList<> ();
         String filePath = LESSON_DIR + "pattern_lessons.txt";
 
         try ( BufferedReader reader = new BufferedReader ( new FileReader ( filePath ) ) )
@@ -181,7 +190,7 @@ public class FileManager
                     continue;
                 }
 
-                // Split lesson data using |
+                // Split lesson data
                 String[] parts = line.split ( "\\|" );
 
                 if ( parts.length != 4 )
@@ -192,27 +201,37 @@ public class FileManager
 
                 String lessonID = parts[0];
                 String title = parts[1];
-                int difficulty = Integer.parseInt ( parts[2] );
-                String[] patterns = parts[3].split ( "," );
 
-                // Print parsed data
-                System.out.println ( "Lesson ID: " + lessonID );
-                System.out.println ( "Title: " + title );
-                System.out.println ( "Difficulty: " + difficulty );
-                System.out.print ( "Pattern: " );
-
-                for ( int i = 0; i < patterns.length; i++ )
+                int difficulty;
+                try
                 {
-                    System.out.print ( patterns[i] );
-
-                    if ( i < patterns.length - 1 )
-                    {
-                        System.out.print ( ", " );
-                    }
+                    difficulty = Integer.parseInt ( parts[2] );
+                }
+                catch ( NumberFormatException e )
+                {
+                    System.out.println ( "Invalid difficulty: " + parts[2] );
+                    continue;
                 }
 
-                System.out.println ( );
-                System.out.println ( "--------------------" );
+                String[] patterns = parts[3].split ( "," );
+
+                // Basic validation
+                if ( !lessonID.startsWith ( "PM" ) || difficulty < 1 || difficulty > 3 )
+                {
+                    System.out.println ( "Invalid lesson data: " + line );
+                    continue;
+                }
+
+                if ( patterns.length < 3 )
+                {
+                    System.out.println ( "Not enough patterns: " + line );
+                    continue;
+                }
+
+                // Create lesson object
+                PatternMatchingLesson lesson = new PatternMatchingLesson ( lessonID, title, difficulty, patterns );
+
+                lessons.add ( lesson );
             }
         }
         catch ( IOException e )
@@ -220,10 +239,13 @@ public class FileManager
             System.out.println ( "Error loading pattern lessons." );
             e.printStackTrace ();
         }
+
+        // Holy shit I actually did it wtf
+        return lessons;
     }
 
 
-
+    // Save report into the reports directory
     public static void saveReport ( String studentId, String reportContent ) 
     {
         String fileName = REPORT_DIR + studentId + "_report.txt";
