@@ -1,0 +1,106 @@
+CLASS Students 
+  
+CLASS Fields:
+
+   studentId(Integer);
+   name(String);
+   age(Integer);
+   currentLevel(Integer);
+   progressScores (ArrayList);
+   
+   
+
+    METHOD:updateProgress()
+    IMPORT: Score (int)
+    EXPORT: none
+    ASSSERTION: Update the score of the current user.
+    ALGORITHM:
+        
+        IF (Score >= 0) AND (Score <= 60) THEN
+
+        this.progressScores = + Score
+
+        ELSE 
+        DISPLAY "Invalid Score."
+    END METHOD 
+
+
+
+
+    METHOD:getStatistics()
+    IMPORT: NONE 
+    EXPORT: statisticsreport(String)
+    ASSSERTION: create a statistics report 
+    ALGORITHM:
+        
+     
+    CALL getAverageScore() and store result in avgScore
+
+
+        CREATE FORMATTED String with:
+        "Student:":+name;
+        "Level:"+currentLevel; 
+        "Average Score": + avgScore formatted to 2 decimal places +"%"
+        "Total lessons": + size of progress scores 
+       
+        RETURN statisticsreport(String)
+     
+
+
+        END METHOD 
+
+
+
+        METHOD:setCurrentLevel
+        IMPORT: Score(Integer)
+        EXPORT: NONE
+        ASSERTION: Set the current level of the user when they complete their answer that is correct
+         ALGORITHM:
+         
+          IF score >= 30 THEN
+        currentLevel = currentLevel + 1
+      END METHOD 
+      
+
+     METHOD:getCurrentLevel 
+     IMPORT:none
+     EXPORT: currentLevel(Integer)
+     ASSERTION: Return current value of current level
+
+     ALGORITHM:
+     Return currentLevel(Integer);
+    END METHOD 
+
+
+
+
+     METHOD:getProgressScore
+     IMPORT:none
+     EXPORT: progressScores (ArrayList)
+     ASSSERTION:Return  all stored progress scores of the student
+     ALGORITHM:
+
+     Return progressScores (ArrayList)
+     END METHOD 
+
+
+METHOD:getAverageScore()
+IMPORT:NONE
+EXPORT:averagescore(double)
+ASSERTION: calculate and return the average progress score
+
+IF progressScores is empty THEN
+ RETURN 0
+  
+ END IF
+
+    total = 0  // local varaible that just only sum all the score 
+    FOR EACH score IN progressScores DO //score represents the result of one question or lesson.
+
+     total =total + score
+      END FOR 
+
+      averageScore = total / size of progressScores //averagescore  represents the overall performance of the student
+       RETURN averageScore
+
+END CLASS
