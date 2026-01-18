@@ -1,5 +1,6 @@
 Progress Report
-Student: Kelven
-Level: 2
-Average Score: 33.33
-Total Lessons: 5
+Student Name: kelven
+Student ID: 700052260
+Level: 1
+Average Score: 70%
+Total Lessons Completed: 10

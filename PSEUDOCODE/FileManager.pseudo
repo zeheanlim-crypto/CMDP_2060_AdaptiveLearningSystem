@@ -1,54 +1,59 @@
-METHOD: FileManager
-IMPORT: none
-EXPORT: none
-ALGORITHM:
-    // Handling functions: saveStudent(), loadStudent()...
-    IF ( saveStudent ) THEN
-        saveStudent();
-    END IF
+CLASS Fields:
+    STUDENT_DIR = "students/"
+    LESSON_DIR = "lessons/"
+    REPORT_DIR = "reports/"
     
 
 METHOD: saveStudent
-IMPORT: studentId (String), studentDetails (String), progressRecords (String)
+IMPORT: student (Student)
 EXPORT: none
 ALGORITHM:
-    // Create the student file name
-    studentFileName := studentId + "_student.txt"
-    
-    // Check if student file already exists
-    IF (file studentFileName does not exist) THEN
-        OUTPUT "Student file not found: " + studentFileName
+    studentFileName := "STU_" + student.name + ".txt"
+
+    IF (studentFileName exists) THEN
+        OUTPUT "Student already exists"
         RETURN
     END IF
-    
-    OPEN studentFile ame FOR WRITING
-    WRITE studentDetails TO studentFileName
-    WRITE progressRecords TO studentFileName
-    CLOSE studentFileName
-    
-    OUTPUT "Saved student " + studentId + " to " + studentFileName
+
+    OPEN studentFileName FOR WRITING
+    WRITE studentFileName TO file
+    WRITE student.name TO file
+    WRITE student.age TO file
+
+    FOR EACH score IN student.progressHistory DO
+        WRITE score TO file
+    END FOR
+
+    CLOSE file
+    OUTPUT "Student saved successfully"
 END METHOD
 
 
 METHOD: loadStudent
-IMPORT: studentId (String)
-EXPORT: studentProfile (String)  // Returns combined details as a single string
+IMPORT: studentID (String)
+EXPORT: student (Student)
 ALGORITHM:
-    // Look for the student's file by name
-    studentFileName := studentId + "_student.txt"
-    
-    IF (file studentFileName does not exist) THEN
-        OUTPUT "Student file not found: " + studentFileName
-        RETURN ""
+    studentFileName := "STU_" + studentID + ".txt"
+
+    IF (file does not exist) THEN
+        OUTPUT "Student file not found"
+        RETURN null
     END IF
-    
-    OPEN studentFileName FOR READING
-    READ studentDetails FROM studentFileName
-    READ progressRecords FROM studentFileName
-    CLOSE studentFileName
-    
-    studentProfile := studentDetails + progressRecords
-    RETURN studentProfile
+
+    OPEN file FOR READING
+    READ name
+    READ age
+
+    progressHistory := empty ArrayList
+
+    WHILE (NOT end of file) DO
+        READ score
+        ADD score TO progressHistory
+    END WHILE
+
+    CLOSE file
+    CREATE student USING name, age, progressHistory
+    RETURN student
 END METHOD
 
 
@@ -56,77 +61,77 @@ METHOD: listStudents
 IMPORT: none
 EXPORT: studentList (ARRAY OF String)
 ALGORITHM:
-    // Get all files in the current folder
-    allFiles := LIST ALL FILES
-    
-    studentList := []  // Start with empty list
-    
-    FOR i := 0 TO (SIZE OF allFiles) - 1 INC BY 1 DO
-        currentFile := allFiles[i]
-        // Check if this file is a student file (ends with "_student.txt")
-        IF (currentFile ends with "_student.txt") THEN
-            // Extract just the student ID part (remove "_student.txt")
-            // Example: "S001_student.txt" becomes "S001"
-            studentId := currentFile without "_student.txt"
-            studentList[ (SIZE OF studentList) ] := studentId
+    allFiles := LIST FILES IN STUDENT_DIR
+    studentList := empty list
+
+    FOR EACH file IN allFiles DO
+        IF (file name starts with "STU_") THEN
+            studentName := file name without prefix and suffix
+            ADD studentName TO studentList
         END IF
     END FOR
-    
+
     RETURN studentList
 END METHOD
 
 
-METHOD: generateProgressReport
-IMPORT: studentId (String), progressData (String)
+METHOD: exportReport
+IMPORT: student (Student), report (String)
 EXPORT: none
 ALGORITHM:
-    // Look for the student file by name
-    studentFileName := studentId + "_student.txt"
-    
-    // Check if the student's file already exists
-    IF (file studentFileName does not exist) THEN
-        OUTPUT "Cannot generate report. Student file not found: " + studentFileName
-        RETURN
-    END IF
-    
-    // If not, create a report file for this student
-    reportFileName := studentId + "_report.txt"
-    
+    reportFileName := student.id + "_report.txt"
+
     OPEN reportFileName FOR WRITING
-    WRITE "=== PROGRESS REPORT ===" TO reportFileName
-    WRITE "Student: " + studentId TO reportFileName
-    WRITE "Date: " + currentDate TO reportFileName
-    WRITE "Progress: " + progressData TO reportFileName
-    WRITE "======================" TO reportFileName
-    CLOSE reportFileName
-    
-    OUTPUT "Created report: " + reportFileName
+    WRITE report TO file
+    CLOSE file
+
+    OUTPUT "Report created"
 END METHOD
 
 
-METHOD: loadLessons
-IMPORT: none
-EXPORT: lessonList (ARRAY OF String)
+METHOD: loadPatternLessons
+IMPORT: filename (String)
+EXPORT: lessonList (ArrayList of PatternMatchingLesson)
 ALGORITHM:
-    // Read lessons from a single lessons file
-    lessonFileName := "lessons.txt"
-    lessonList := []
-    
-    IF (file lessonFileName does not exist) THEN
-        OUTPUT "Lessons file not found"
-        RETURN lessonList  // Return empty array
-    END IF
-    
-    OPEN lessonFileName FOR READING
-    lineCount := 0
-    WHILE (NOT END OF FILE lessonFileName) DO
-        READ line FROM lessonFileName
-        IF (line IS NOT empty) AND (line does NOT start with "#") THEN
-            lessonList[lineCount] := line
-            lineCount := lineCount + 1
+    OPEN filename FOR READING
+    lessonList := empty ArrayList
+
+    WHILE (NOT end of file) DO
+        READ line
+        IF (line empty OR starts with "#") THEN
+            CONTINUE
         END IF
+
+        SPLIT line BY "|"
+        VALIDATE data
+        CREATE PatternMatchingLesson
+        ADD lesson TO lessonList
     END WHILE
-    
-    CLOSE lessonFileName
+
+    CLOSE file
+    RETURN lessonList
+END METHOD
+
+
+METHOD: loadWordLessons
+IMPORT: filename (String)
+EXPORT: lessonList (ArrayList of WordBuildingLesson)
+ALGORITHM:
+    OPEN filename FOR READING
+    lessonList := empty ArrayList
+
+    WHILE (NOT end of file) DO
+        READ line
+        IF (line empty OR starts with "#") THEN
+            CONTINUE
+        END IF
+
+        SPLIT line BY "|"
+        VALIDATE data
+        CREATE WordBuildingLesson
+        ADD lesson TO lessonList
+    END WHILE
+
+    CLOSE file
     RETURN lessonList
 END METHOD

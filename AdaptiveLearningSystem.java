@@ -1,44 +1,48 @@
-import java.util.List;
-
 public class AdaptiveLearningSystem 
 {
     public static void main ( String[] args ) 
     {
-        String studentName = "Kelven";
-        String studentID = "700052260";
-        int totalLessons = 5;
-        int age = 20;
-        int scores = 90;
-        int level = 2;
-        double averageScore = 33.33;
+        // Create a student
+        Student s = new Student(700052260, "kelven", 21, 1, new java.util.ArrayList<>());
 
+        // Save student
+        FileManager.saveStudent(s);
+
+        /*// List students
+        System.out.println("Students:");
         String[] students = FileManager.listStudents();
-        System.out.println(students);
+        for (String name : students) {
+            System.out.println(name);
+        }*/
 
 
-        /*
-        FileManager.saveStudent ( studentName, studentID, age, scores );
-        FileManager.loadStudent ( studentName );
-        FileManager.listStudents();
-        FileManager.exportReport ( studentID, studentName, totalLessons, averageScore, level );
-        FileManager.loadPatternLessons();
+        // Load student
+        Student loaded = FileManager.loadStudent("700052260");
+        if (loaded != null) {
+            System.out.println("Loaded student successfully");
+            System.out.println(loaded.getStatistics());
+
+            // Simulate answering questions
+            loaded.updateProgress(true);
+            loaded.updateProgress(true);  
+            loaded.updateProgress(false);
+            loaded.updateProgress(true);
+            loaded.updateProgress(true);  
+            loaded.updateProgress(false);
+            loaded.updateProgress(true);
+            loaded.updateProgress(true);  
+            loaded.updateProgress(false);
+            loaded.updateProgress(true);
 
 
-        List<PatternMatchingLesson> lessons = FileManager.loadPatternLessons ();
 
-        System.out.println ( "Total lessons loaded: " + lessons.size () );
+            System.out.println("After answering questions:");
+            System.out.println(loaded.getStatistics());
 
-        for (PatternMatchingLesson lesson : lessons)
-        {
-            lesson.displayLesson();
-            System.out.println();
+            // Save updated student
+            FileManager.saveStudent(loaded);
         }
 
-        
-        String studentProfile = FileManager.loadStudent("Kelven");
-        System.out.println(studentProfile);
-
-
-        */
+        FileManager.exportReport(loaded);
     }
 }
