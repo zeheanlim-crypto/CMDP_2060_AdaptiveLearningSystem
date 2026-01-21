@@ -74,10 +74,10 @@ public class Student {
         int totalLessons = progressScores.size ( );
 
         String statisticsReport = 
-            "Student: " + name + 
-            ", Level: " + level + 
-            ", Average Score: " + Math.round ( avgScore ) + "%" + 
-            ", Total Lessons: " + totalLessons;
+            "Student: " + name  + "\n" + 
+            "Level: " + level + "\n" + 
+            "Average Score: " + Math.round ( avgScore ) + "%" + "\n" + 
+            "Total Lessons: " + totalLessons;
 
         return statisticsReport;
     }

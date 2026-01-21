@@ -1,6 +1,6 @@
 Progress Report
 Student Name: kelven
 Student ID: 700052260
-Level: 2
-Average Score: 27%
-Total Lessons Completed: 11
+Level: 3
+Average Score: 90%
+Total Lessons Completed: 10
