@@ -1,74 +1,164 @@
 CLASS WordBuildingLesson EXTENDS Lesson
 
-CLASS Field:
-    targetWord(String);
-    scrambledLetters (String array) ;
+    VARIABLES
+        targetWord : STRING
+        scrambledLetters : ARRAY OF STRING
 
-CONSTRUCTOR: worldBuildingLesson
-IMPORT: lessonId(Integer), title(String), difficultyLevel(Integer), targetWord(String)
-EXPORT: none
-ASSERTION: import methods from parent class lesson
-ALGORITHM: 
-    CALL super(lessonId, title, difficultyLevel)
-    SET this.targetWord = targetWord
-    CALL scrambledLetters
+    CONSTRUCTOR WordBuildingLesson(
+        lessonId : INTEGER,
+        title : STRING,
+        difficultyLevel : INTEGER,
+        targetWordFilePath : STRING
+    )
 
-METHOD: evaluateAnswer
-IMPORT: userAnswer(String)
-EXPORT: none
-ASSERTION:checks if word is correct 
-ALGORITHM:
-    IF userAnswer = targetWord THEN
-        RETURN true
-    ELSE 
-        RETURN false
-    ENDIF
+        CALL super(lessonId, title, difficultyLevel)
 
-METHOD: scrambleLetters
-IMPORT: none
-EXPORT: scrambledLetters
-ASSERTION: shuffles word letters (hints: split the letters and use Math.random() method)
-ALGORITHM:
-    shuffleTargetWord(char)[i]
-    charTargetWord(char)[i]
-    FOR i = 0 TO length(targetWord) - 1 //turns the String into characters
-        charTargetWord[i] = targetWord[i]
-    ENDFOR
+        SET targetWord = NULL
+        SET scrambledLetters = EMPTY ARRAY
 
-    n = length(shuffleTargetWord) //shuffles the characters in the array using a random number generator limited between 0 and size of the array
-    FOR originalLetter = n - 1 DOWN TO 1
-        SWAP shuffleTargetWord[i] WITH charTargetWord[RANDOM_INTEGER(0, i)]
-        scrambledLetters[i] = shuffleTargetWord[i]
-    ENDFOR   
+        IF targetWordFilePath IS NULL OR targetWordFilePath IS EMPTY THEN
+            RETURN
+        END IF
 
-    return scrambledLetters
+        TRY
+            OPEN FILE targetWordFilePath
+            WHILE NOT end of file DO
+                READ line
+                TRIM line
+                IF line IS NOT EMPTY THEN
+                    SET targetWord = line
+                    BREAK
+                END IF
+            END WHILE
+            CLOSE FILE
+        CATCH file error
+            SET targetWord = NULL
+        END TRY
 
-//METHOD: displayLesson
-//IMPORT: none
-//EXPORT: none
-//ASSERTION:
-//ALGORITHM:
-    
+    END CONSTRUCTOR
 
-METHOD: getHint
-IMPORT: none
-EXPORT: none
-ASSERTION: reveals first letter
-ALGORITHM:
-    RETURN first character of targetWord
 
-METHOD: getScrambledLetters
-IMPORT: none
-EXPORT: none
-ASSERTION: return the scrambledLetters
-ALGORITHM:
-    RETURN scrambledLetters
+    METHOD normalizeLetters(s : STRING) RETURNS STRING
+        IF s IS NULL THEN
+            RETURN EMPTY STRING
+        END IF
 
-ACCESSOR: getTargetWord
-IMPORT: none
-EXPORT: targetWord(String array)
-ASSERTION: return the targetWord
-ALGORITHM:
-    RETURN targetWord
+        REMOVE all spaces from s
+        CONVERT s to lowercase
+        RETURN s
+    END METHOD
+
+
+    METHOD evaluateAnswer(userAnswer : STRING) RETURNS BOOLEAN
+
+        IF userAnswer IS NULL OR EMPTY THEN
+            RETURN FALSE
+        END IF
+
+        IF targetWord IS NULL OR EMPTY THEN
+            RETURN FALSE
+        END IF
+
+        SET normalizedAnswer = normalizeLetters(userAnswer)
+        SET normalizedTarget = normalizeLetters(targetWord)
+
+        IF normalizedAnswer EQUALS normalizedTarget THEN
+            RETURN TRUE
+        END IF
+
+        IF LENGTH(normalizedAnswer) NOT EQUAL LENGTH(normalizedTarget) THEN
+            RETURN FALSE
+        END IF
+
+        CREATE letterCountAnswer MAP
+        CREATE letterCountTarget MAP
+
+        FOR EACH character IN normalizedAnswer DO
+            INCREMENT letterCountAnswer[character]
+        END FOR
+
+        FOR EACH character IN normalizedTarget DO
+            INCREMENT letterCountTarget[character]
+        END FOR
+
+        IF letterCountAnswer = letterCountTarget THEN
+            RETURN TRUE
+        ELSE
+            RETURN FALSE
+        END IF
+
+    END METHOD
+
+
+    METHOD scrambleLetters RETURNS ARRAY OF STRING
+
+        IF targetWord IS NULL OR EMPTY THEN
+            SET scrambledLetters = EMPTY ARRAY
+            RETURN scrambledLetters
+        END IF
+
+        SPLIT targetWord INTO arrayOfLetters
+
+        REPEAT 10 TIMES
+            SHUFFLE arrayOfLetters RANDOMLY
+            IF JOIN(arrayOfLetters) ≠ targetWord THEN
+                SET scrambledLetters = arrayOfLetters
+                RETURN scrambledLetters
+            END IF
+        END REPEAT
+
+        IF LENGTH(targetWord) > 1 THEN
+            ROTATE letters by one position
+            SET scrambledLetters = rotated letters
+        ELSE
+            SET scrambledLetters = original letters
+        END IF
+
+        RETURN scrambledLetters
+
+    END METHOD
+
+
+    METHOD getScrambledLetters RETURNS ARRAY OF STRING
+        IF scrambledLetters IS EMPTY THEN
+            CALL scrambleLetters
+        END IF
+        RETURN COPY OF scrambledLetters
+    END METHOD
+
+
+    METHOD getTargetWord RETURNS STRING
+        RETURN targetWord
+    END METHOD
+
+
+    METHOD getHint RETURNS STRING
+
+        IF targetWord IS NULL OR EMPTY THEN
+            RETURN " "
+        END IF
+
+        SET length = LENGTH(targetWord)
+        SET hint = FIRST LETTER OF targetWord
+
+        FOR i FROM 2 TO length DO
+            APPEND "_" TO hint
+        END FOR
+
+        SET extraHint = EMPTY STRING
+
+        IF length > 2 THEN
+            SET randomIndex = RANDOM NUMBER BETWEEN 2 AND length
+            SET extraHint =
+                " Also, the letter in position " +
+                randomIndex +
+                " is '" +
+                targetWord[randomIndex] +
+                "'."
+        END IF
+
+        RETURN "Hint: " + hint + " (Length: " + length + ")" + extraHint
+
+    END METHOD
 
 END CLASS
