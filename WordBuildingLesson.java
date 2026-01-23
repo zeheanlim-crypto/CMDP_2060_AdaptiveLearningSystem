@@ -150,3 +150,4 @@ public class WordBuildingLesson extends Lesson {
         return "Hint: " + hidden + " (Length: " + len + ")" + extraHint;
     }
 }
+
